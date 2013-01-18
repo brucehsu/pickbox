@@ -1,0 +1,4 @@
+files/*
+*.db
+*.swp
+.DS_store

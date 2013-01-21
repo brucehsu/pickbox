@@ -61,9 +61,9 @@ if ARGV[0]=='sync'
     remote_dir = RestClient.post("#{PICKBOX_SERVER_URL}/get_dir",{:username=>username_token, :password=>password_token})
     if remote_dir.empty?
         params = {:username=>username_token, :password=>password_token}
-        encrypted_dir = aes256_encrypt(password,IO.read('.dir.yaml')).unpack('H*')[0]
-        params[:file] = encrypted_dir
-        params[:cipher_hash] = Digest::SHA256.digest(encrypted_dir).to_s.unpack('H*')[0]
+        encrypted_dir = encrypt_dir_file(password)
+        params[:file] = encrypted_dir[:file]
+        params[:cipher_hash] = encrypted_dir[:hash]
         RestClient.post("#{PICKBOX_SERVER_URL}/upload_dir",params)
     else
         decrypted_dir = aes256_decrypt(password,[remote_dir].pack('H*'))
@@ -79,9 +79,9 @@ if ARGV[0]=='sync'
     end
     update_dir(dir_path,dir_structure,password)  
     params = {:username=>username_token, :password=>password_token}
-    encrypted_dir = aes256_encrypt(password,IO.read('.dir.yaml')).unpack('H*')[0]
-    params[:file] = encrypted_dir
-    params[:cipher_hash] = Digest::SHA256.digest(encrypted_dir).to_s.unpack('H*')[0]
+    encrypted_dir = encrypt_dir_file(password)
+    params[:file] = encrypted_dir[:file]
+    params[:cipher_hash] = encrypted_dir[:hash]
     RestClient.post("#{PICKBOX_SERVER_URL}/upload_dir",params)
 elsif ARGV[0]=='rev'
     if ARGV[1].nil?

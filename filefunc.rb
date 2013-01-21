@@ -8,6 +8,15 @@ def encrypt_file(filename, password)
     return {:file=> file_cipher, :hash=> hash_cipher}
 end
 
+def encrypt_dir_file(password)
+    filename = '.dir.yaml'
+    content = IO.read(filename)
+    file_cipher = aes256_encrypt(password, content).unpack('H*')[0]
+    cipher_hash = Digest::SHA256.digest(file_cipher)
+    hash_cipher = aes256_encrypt(password, cipher_hash).unpack('H*')[0]
+    return {:file=> file_cipher, :hash=> hash_cipher}   
+end
+
 def get_file_hash(path)
     Digest::SHA256.digest(IO.read(path)).to_s.unpack('H*')[0]
 end

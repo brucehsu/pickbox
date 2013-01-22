@@ -1,5 +1,12 @@
 require 'aesfunc'
 
+def write_file(filename, content)
+    output = File.new(filename,'w')
+    output.write(content)
+    output.flush
+    output.close  
+end
+
 def encrypt_file(filename, password)
     content = IO.read(filename)
     content_hash = Digest::SHA256.digest(content)
@@ -66,10 +73,7 @@ def update_dir(dir_path, dir_hash,password)
                     remote_file_cipher = [RestClient.get("#{PICKBOX_SERVER_URL}/#{v[latest_rev][:cipher_hash]}")].pack('H*')
                     decrypt_key = aes256_decrypt(password,[v[latest_rev][:key]].pack('H*'))
                     decrypted_file = aes256_decrypt(decrypt_key,remote_file_cipher)
-                    output = File.new(k,'w')
-                    output.write(decrypted_file)
-                    output.flush
-                    output.close
+                    write_file(k, decrypted_file)
                 end
             end
         else
@@ -78,15 +82,9 @@ def update_dir(dir_path, dir_hash,password)
             decrypted_file = aes256_decrypt(decrypt_key,remote_file_cipher)
 
             FileUtils.mkpath(k.split(k.split(File::SEPARATOR).last)[0]) if k.include? File::SEPARATOR
-            output = File.new(k,'w')
-            output.write(decrypted_file)
-            output.flush
-            output.close
+            write_file(k, decrypted_file)
         end
     end
 
-    output = File.new(dir_path,'w')
-    output.write(dir_hash.to_yaml)
-    output.flush
-    output.close
+    write_file(dir_path, dir_hash.to_yaml)
 end

@@ -49,10 +49,7 @@ dir_structure = {}
 # Build local directory structure if current directory isn't initialized
 unless File.exists? dir_path
     build_dir_structure(Dir.pwd+File::SEPARATOR,Dir.pwd,dir_structure, password)
-    output = File.new(dir_path,'w')
-    output.write(dir_structure.to_yaml)
-    output.flush
-    output.close
+    write_file(dir_path, dir_structure.to_yaml)
 end
 
 dir_structure = YAML::load(File.new(dir_path))
@@ -71,10 +68,7 @@ if ARGV[0]=='sync'
             # Merge
             remote_dir_yaml = YAML::load(decrypted_dir)
             dir_structure.merge!(remote_dir_yaml)
-            output = File.new(dir_path,'w')
-            output.write(dir_structure.to_yaml)
-            output.flush
-            output.close
+            write_file(dir_path, dir_structure.to_yaml)
         end
     end
     update_dir(dir_path,dir_structure,password)  
@@ -114,8 +108,6 @@ elsif ARGV[0]=='revert'
     remote_file_cipher = [RestClient.get("#{PICKBOX_SERVER_URL}/#{revs[timestamp][:cipher_hash]}")].pack('H*')
     decrypt_key = aes256_decrypt(password,[revs[timestamp][:key]].pack('H*'))
     decrypted_file = aes256_decrypt(decrypt_key,remote_file_cipher)
-    output = File.new(ARGV[1],'w')
-    output.write(decrypted_file)
-    output.flush
-    output.close
+
+    write_file(ARGV[1, decrypted_file])
 end

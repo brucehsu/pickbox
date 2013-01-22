@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'data_mapper'
 DataMapper.setup(:default, "sqlite://#{Dir.pwd}/server.db")
 

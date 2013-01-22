@@ -3,6 +3,7 @@ PICKBOX_SERVER_URL = ''
 
 $LOAD_PATH << PICKBOX_PATH
 
+require 'rubygems'
 require 'yaml'
 require 'rest-client'
 require 'io/console'

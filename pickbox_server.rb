@@ -1,6 +1,7 @@
 PICKBOX_PATH = ''
 
 $LOAD_PATH << PICKBOX_PATH
+require 'rubygems'
 require 'sinatra'
 require 'server_db'
 require 'filefunc'

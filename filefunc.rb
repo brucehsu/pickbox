@@ -43,7 +43,7 @@ def build_dir_structure(root, path, dir_hash, password)
             dir_key = file_path.split(root)[1]
             dir_hash[dir_key] = {}
             encrypted = encrypt_file(file_path,password)
-            dir_hash[dir_key][Time.now.to_i] = {:cipher_hash=>Digest::SHA256.digest(encrypted[:file]).unpack('H*')[0],:key=>encrypted[:hash]}
+            dir_hash[dir_key][File.mtime(dir_key).to_i] = {:cipher_hash=>Digest::SHA256.digest(encrypted[:file]).unpack('H*')[0],:key=>encrypted[:hash]}
         end
     end
 end
@@ -64,7 +64,7 @@ def update_dir(dir_path, dir_hash,password)
             remote_existence = RestClient.get("#{PICKBOX_SERVER_URL}/exists/" + encrypted_cipher_hash)
 
             if remote_existence.empty?
-                dir_hash[k][Time.now.to_i] = {:cipher_hash=>encrypted_cipher_hash, :key=>encrypted[:hash]}
+                dir_hash[k][File.mtime(k).to_i] = {:cipher_hash=>encrypted_cipher_hash, :key=>encrypted[:hash]}
                 RestClient.post("#{PICKBOX_SERVER_URL}/upload",params)
             else
                 # Check if local copy is at the latest revision

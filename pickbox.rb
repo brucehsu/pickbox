@@ -110,5 +110,5 @@ elsif ARGV[0]=='revert'
     decrypt_key = aes256_decrypt(password,[revs[timestamp][:key]].pack('H*'))
     decrypted_file = aes256_decrypt(decrypt_key,remote_file_cipher)
 
-    write_file(ARGV[1, decrypted_file])
+    write_file(ARGV[1], decrypted_file)
 end

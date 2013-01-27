@@ -64,25 +64,28 @@ def update_dir(dir_path, dir_hash,password)
             remote_existence = RestClient.get("#{PICKBOX_SERVER_URL}/exists/" + encrypted_cipher_hash)
 
             if remote_existence.empty?
+                # Upload local file if it hasn't been synced to remote
                 dir_hash[k][File.mtime(k).to_i] = {:cipher_hash=>encrypted_cipher_hash, :key=>encrypted[:hash]}
                 RestClient.post("#{PICKBOX_SERVER_URL}/upload",params)
             else
-                # Check if local copy is at the latest revision
-                p v[latest_rev][:key]
+                # Update local file if remote revision is newer
                 unless encrypted_cipher_hash == v[latest_rev][:key]
                     remote_file_cipher = [RestClient.get("#{PICKBOX_SERVER_URL}/#{v[latest_rev][:cipher_hash]}")].pack('H*')
                     decrypt_key = aes256_decrypt(password,[v[latest_rev][:key]].pack('H*'))
                     decrypted_file = aes256_decrypt(decrypt_key,remote_file_cipher)
                     write_file(k, decrypted_file)
+                    File.utime(Time.now, Time.at(latest_rev), k)
                 end
             end
         else
+            # Download remote file if such file doesn't exist locally
             remote_file_cipher = [RestClient.get("#{PICKBOX_SERVER_URL}/#{v[latest_rev][:cipher_hash]}")].pack('H*')
             decrypt_key = aes256_decrypt(password,[v[latest_rev][:key]].pack('H*'))
             decrypted_file = aes256_decrypt(decrypt_key,remote_file_cipher)
 
             FileUtils.mkpath(k.split(k.split(File::SEPARATOR).last)[0]) if k.include? File::SEPARATOR
             write_file(k, decrypted_file)
+            File.utime(Time.now, Time.at(latest_rev), k)
         end
     end
 

@@ -83,17 +83,14 @@ elsif ARGV[0]=='rev'
         puts 'usage: pickbox rev [file]'
         exit 13
     end
-    # list all revision
-    revs = dir_structure[ARGV[1]]
-    revs.each do |k,v|
-        puts "\t#{v[:cipher_hash][0..7]}\t#{Time.at(k)}"
-    end
+
+    list_revisions(ARGV[1], dir_structure, password)
 elsif ARGV[0]=='revert'
     if ARGV[1].nil? and ARGV[2].nil?
         puts 'usage: pickbox revert [file] [rev]'
         exit 13
     end
-
+    
     revs = dir_structure[ARGV[1]]
     timestamp = nil
     revs.each do |k,v|

@@ -91,3 +91,13 @@ def update_dir(dir_path, dir_hash,password)
 
     write_file(dir_path, dir_hash.to_yaml)
 end
+
+def list_revisions(filename, dir_hash, password)
+    current_hash = encrypt_file(filename, password)[:file]
+    current_hash = Digest::SHA256.digest(current_hash).unpack('H*')[0]
+    revs = dir_hash[filename]
+    revs.each do |k,v|
+        print '     *' if current_hash == v[:cipher_hash]
+        puts "\t#{v[:cipher_hash][0..7]}\t#{Time.at(k)}"
+    end
+end

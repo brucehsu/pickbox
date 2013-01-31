@@ -90,22 +90,6 @@ elsif ARGV[0]=='revert'
         puts 'usage: pickbox revert [file] [rev]'
         exit 13
     end
-    
-    revs = dir_structure[ARGV[1]]
-    timestamp = nil
-    revs.each do |k,v|
-        if v[:cipher_hash][0..7]==ARGV[2]
-            timestamp = k
-            break
-        end
-    end
-    if timestamp.nil?
-        puts 'Revision does not exist'
-        exit 14
-    end
-    remote_file_cipher = [RestClient.get("#{PICKBOX_SERVER_URL}/#{revs[timestamp][:cipher_hash]}")].pack('H*')
-    decrypt_key = aes256_decrypt(password,[revs[timestamp][:key]].pack('H*'))
-    decrypted_file = aes256_decrypt(decrypt_key,remote_file_cipher)
 
-    write_file(ARGV[1], decrypted_file)
+    revert(ARGV[1], ARGV[2], dir_structure, dir_path, password)
 end

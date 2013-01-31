@@ -101,3 +101,25 @@ def list_revisions(filename, dir_hash, password)
         puts "\t#{v[:cipher_hash][0..7]}\t#{Time.at(k)}"
     end
 end
+
+def revert(filename, revision, dir_hash, dir_path, password)
+    revs = dir_hash[filename]
+    timestamp = nil
+    revs.each do |k,v|
+        if v[:cipher_hash][0..7]==revision
+            timestamp = k
+            break
+        end
+    end
+    if timestamp.nil?
+        puts 'Revision does not exist'
+        exit 14
+    end
+    remote_file_cipher = [RestClient.get("#{PICKBOX_SERVER_URL}/#{revs[timestamp][:cipher_hash]}")].pack('H*')
+    decrypt_key = aes256_decrypt(password,[revs[timestamp][:key]].pack('H*'))
+    decrypted_file = aes256_decrypt(decrypt_key,remote_file_cipher)
+
+    write_file(ARGV[1], decrypted_file)
+    revs[File.mtime(filename).to_i] = {:cipher_hash=>revs[timestamp][:cipher_hash], :hash=>revs[timestamp][:hash]}
+    write_file(dir_path, dir_hash.to_yaml)    
+end

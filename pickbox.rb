@@ -68,7 +68,9 @@ if ARGV[0]=='sync'
         unless Digest::SHA256.digest(decrypted_dir).to_s.unpack('H*')[0] == get_file_hash('.dir.yaml')
             # Merge
             remote_dir_yaml = YAML::load(decrypted_dir)
-            dir_structure.merge!(remote_dir_yaml)
+            dir_structure.merge!(remote_dir_yaml) do |k,v1,v2|
+                v1.merge(v2)
+            end
             write_file(dir_path, dir_structure.to_yaml)
         end
     end

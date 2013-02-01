@@ -124,6 +124,6 @@ def revert(filename, revision, dir_hash, dir_path, password)
     decrypted_file = aes256_decrypt(decrypt_key,remote_file_cipher)
 
     write_file(ARGV[1], decrypted_file)
-    revs[File.mtime(filename).to_i] = {:cipher_hash=>revs[timestamp][:cipher_hash], :hash=>revs[timestamp][:hash]}
+    revs[File.mtime(filename).to_i] = {:cipher_hash=>revs[timestamp][:cipher_hash], :key=>revs[timestamp][:key]}
     write_file(dir_path, dir_hash.to_yaml)    
 end

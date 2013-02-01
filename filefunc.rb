@@ -95,10 +95,14 @@ end
 def list_revisions(filename, dir_hash, password)
     current_hash = encrypt_file(filename, password)[:file]
     current_hash = Digest::SHA256.digest(current_hash).unpack('H*')[0]
-    revs = dir_hash[filename]
-    revs.each do |k,v|
-        print '     *' if current_hash == v[:cipher_hash]
-        puts "\t#{v[:cipher_hash][0..7]}\t#{Time.at(k)}"
+    revs = dir_hash[filename].to_a.reverse
+    indication = false
+    revs.each do |rev|
+        if current_hash == rev[1][:cipher_hash] and not indication
+            print '     *'
+            indication = true
+        end
+        puts "\t#{rev[1][:cipher_hash][0..7]}\t#{Time.at(rev[0])}"
     end
 end
 
